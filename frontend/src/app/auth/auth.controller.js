@@ -2,7 +2,7 @@ angular.module('noteflowApp')
 .controller('AuthController', ['$scope', '$http', '$timeout', '$interval',
 function($scope, $http, $timeout, $interval) {
   var auth = this;
-  var BASE = 'http://localhost:8080/api';
+  var BASE = 'https://noteflow-j15m.onrender.com/api';
 
   auth.step = 1;          // 1=email, 2=otp, 3=name(new user)
   auth.email = '';
