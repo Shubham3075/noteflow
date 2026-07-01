@@ -1,0 +1,137 @@
+<div ng-controller="AdminController as admin">
+
+  <!-- Admin Stats -->
+  <div class="admin-stats">
+    <div class="stat-card">
+      <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+      <div class="stat-number">{{admin.users.length}}</div>
+      <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green"><i class="fas fa-sticky-note"></i></div>
+      <div class="stat-number">{{admin.notes.length}}</div>
+      <div class="stat-label">Total Notes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon amber"><i class="fas fa-circle-check"></i></div>
+      <div class="stat-number">{{admin.todos.length}}</div>
+      <div class="stat-label">Total Tasks</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="admin-tabs">
+    <button class="admin-tab" ng-class="{active: admin.tab === 'users'}" ng-click="admin.tab = 'users'">
+      <i class="fas fa-users"></i> Users
+    </button>
+    <button class="admin-tab" ng-class="{active: admin.tab === 'notes'}" ng-click="admin.tab = 'notes'">
+      <i class="fas fa-sticky-note"></i> Notes
+    </button>
+    <button class="admin-tab" ng-class="{active: admin.tab === 'todos'}" ng-click="admin.tab = 'todos'">
+      <i class="fas fa-list-check"></i> Tasks
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-dots" ng-if="admin.loading"><span></span><span></span><span></span></div>
+
+  <!-- Users Table -->
+  <div class="data-table users-table" ng-if="!admin.loading && admin.tab === 'users'">
+    <div class="table-header">
+      <div>User</div>
+      <div>Email</div>
+      <div>Role</div>
+      <div>Status</div>
+      <div>Joined</div>
+      <div>Actions</div>
+    </div>
+    <div class="table-row" ng-repeat="user in admin.users">
+      <div class="table-cell">
+        <div class="user-info-cell">
+          <img ng-if="user.profilePhoto" ng-src="{{app.apiBase + user.profilePhoto}}" class="user-avatar-sm" />
+          <div ng-if="!user.profilePhoto" class="avatar-placeholder">{{user.name[0]}}</div>
+          <div>
+            <div style="font-weight:600;font-size:13.5px">{{user.name}}</div>
+            <div style="font-size:11.5px;color:var(--text-3)">{{user.notesCount}} notes · {{user.todosCount}} tasks</div>
+          </div>
+        </div>
+      </div>
+      <div class="table-cell secondary">{{user.email}}</div>
+      <div class="table-cell">
+        <span class="priority-badge" ng-class="user.role === 'ADMIN' ? 'priority-URGENT' : 'priority-LOW'">
+          {{user.role}}
+        </span>
+      </div>
+      <div class="table-cell">
+        <span class="status-badge" ng-class="user.isActive ? 'status-active' : 'status-inactive'">
+          <i class="fas" ng-class="user.isActive ? 'fa-circle-check' : 'fa-circle-xmark'"></i>
+          {{user.isActive ? 'Active' : 'Inactive'}}
+        </span>
+      </div>
+      <div class="table-cell secondary">{{user.createdAt | date:'MMM d, y'}}</div>
+      <div class="table-cell" style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" ng-click="admin.toggleUserStatus(user)" title="Toggle Status">
+          <i class="fas" ng-class="user.isActive ? 'fa-ban' : 'fa-check'"></i>
+        </button>
+        <button class="btn btn-danger btn-sm" ng-click="admin.deleteUser(user)">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+    <div class="empty-state" ng-if="admin.users.length === 0">
+      <div class="empty-desc">No users found</div>
+    </div>
+  </div>
+
+  <!-- Notes Table -->
+  <div class="data-table notes-table" ng-if="!admin.loading && admin.tab === 'notes'">
+    <div class="table-header">
+      <div>Title</div>
+      <div>User</div>
+      <div>Type</div>
+      <div>Created</div>
+      <div>Actions</div>
+    </div>
+    <div class="table-row" ng-repeat="note in admin.notes">
+      <div class="table-cell" style="font-weight:600">{{note.title}}</div>
+      <div class="table-cell secondary">{{note.userName}}</div>
+      <div class="table-cell">
+        <span class="priority-badge priority-MEDIUM">{{note.type}}</span>
+      </div>
+      <div class="table-cell secondary">{{note.createdAt | date:'MMM d, y'}}</div>
+      <div class="table-cell">
+        <button class="btn btn-danger btn-sm" ng-click="admin.deleteNote(note)">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Todos Table -->
+  <div class="data-table todos-table" ng-if="!admin.loading && admin.tab === 'todos'">
+    <div class="table-header">
+      <div>Task</div>
+      <div>User</div>
+      <div>Priority</div>
+      <div>Status</div>
+      <div>Actions</div>
+    </div>
+    <div class="table-row" ng-repeat="todo in admin.todos">
+      <div class="table-cell" style="font-weight:600">{{todo.title}}</div>
+      <div class="table-cell secondary">{{todo.userName}}</div>
+      <div class="table-cell">
+        <span class="priority-badge priority-{{todo.priority}}">{{todo.priority}}</span>
+      </div>
+      <div class="table-cell">
+        <span class="status-badge" ng-class="todo.isCompleted ? 'status-active' : 'status-inactive'">
+          {{todo.isCompleted ? 'Done' : 'Pending'}}
+        </span>
+      </div>
+      <div class="table-cell">
+        <button class="btn btn-danger btn-sm" ng-click="admin.deleteTodo(todo)">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

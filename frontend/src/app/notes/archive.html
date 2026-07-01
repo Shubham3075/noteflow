@@ -1,0 +1,27 @@
+<div ng-controller="NotesController as notes" ng-init="notes.loadArchived()">
+  <div style="margin-bottom:20px;color:var(--text-3);font-size:14px;display:flex;align-items:center;gap:8px;">
+    <i class="fas fa-box-archive"></i> Archived notes are not shown in main notes view.
+  </div>
+  <div class="notes-grid" ng-if="notes.archivedNotes.length > 0">
+    <div class="note-card"
+         ng-repeat="note in notes.archivedNotes"
+         ng-style="{'background': note.color && note.color !== '#ffffff' ? note.color : ''}">
+      <div class="note-title">{{note.title}}</div>
+      <div class="note-content" ng-if="note.content">{{note.content}}</div>
+      <div class="note-date">{{note.updatedAt | date:'MMM d, y'}}</div>
+      <div class="note-actions" style="opacity:1">
+        <button class="note-action-btn" ng-click="notes.toggleArchive(note)" title="Unarchive">
+          <i class="fas fa-arrow-up-from-bracket"></i>
+        </button>
+        <button class="note-action-btn danger" ng-click="notes.deleteNote(note)" title="Delete">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="empty-state" ng-if="notes.archivedNotes.length === 0">
+    <div class="empty-icon"><i class="fas fa-box-archive"></i></div>
+    <div class="empty-title">No archived notes</div>
+    <div class="empty-desc">Notes you archive will appear here.</div>
+  </div>
+</div>

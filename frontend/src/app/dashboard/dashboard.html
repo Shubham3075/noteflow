@@ -1,0 +1,90 @@
+<div ng-controller="DashboardController as dash">
+  <!-- Welcome Banner -->
+  <div class="welcome-banner">
+    <div class="welcome-text">
+      <h2>Good {{dash.greeting}}, {{app.user.name}} 👋</h2>
+      <p>{{dash.dateStr}} · {{dash.stats.pendingTodos}} tasks pending · {{dash.stats.totalNotes}} notes</p>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon purple"><i class="fas fa-sticky-note"></i></div>
+      <div class="stat-number">{{dash.stats.totalNotes}}</div>
+      <div class="stat-label">Total Notes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green"><i class="fas fa-circle-check"></i></div>
+      <div class="stat-number">{{dash.stats.completedTodos}}</div>
+      <div class="stat-label">Completed Tasks</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon amber"><i class="fas fa-clock"></i></div>
+      <div class="stat-number">{{dash.stats.pendingTodos}}</div>
+      <div class="stat-label">Pending Tasks</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue"><i class="fas fa-box-archive"></i></div>
+      <div class="stat-number">{{dash.stats.archivedNotes}}</div>
+      <div class="stat-label">Archived Notes</div>
+    </div>
+  </div>
+
+  <!-- Recent Notes -->
+  <div style="margin-bottom: 32px;">
+    <div class="section-header">
+      <h2 class="section-title"><i class="fas fa-sticky-note" style="color:var(--primary);margin-right:8px"></i>Recent Notes</h2>
+      <span class="section-link" ng-click="app.navigate('notes')">View all →</span>
+    </div>
+    <div ng-if="dash.loading" class="loading-dots"><span></span><span></span><span></span></div>
+    <div class="notes-grid" ng-if="!dash.loading && dash.recentNotes.length > 0">
+      <div class="note-card" ng-repeat="note in dash.recentNotes | limitTo:6"
+           ng-style="{'background': note.color && note.color !== '#ffffff' ? note.color : ''}"
+           ng-click="app.navigate('notes')">
+        <div class="note-title">{{note.title}}</div>
+        <div class="note-content">{{note.content}}</div>
+        <div class="note-date">{{note.updatedAt | date:'MMM d, y'}}</div>
+      </div>
+    </div>
+    <div class="empty-state" ng-if="!dash.loading && dash.recentNotes.length === 0">
+      <div class="empty-icon"><i class="fas fa-sticky-note"></i></div>
+      <div class="empty-title">No notes yet</div>
+      <div class="empty-desc">Start capturing your ideas!</div>
+      <button class="btn btn-primary" style="margin-top:16px" ng-click="app.navigate('notes')">
+        <i class="fas fa-plus"></i> Create Note
+      </button>
+    </div>
+  </div>
+
+  <!-- Recent Todos -->
+  <div>
+    <div class="section-header">
+      <h2 class="section-title"><i class="fas fa-list-check" style="color:var(--success);margin-right:8px"></i>Pending Tasks</h2>
+      <span class="section-link" ng-click="app.navigate('todos')">View all →</span>
+    </div>
+    <div class="todo-list" ng-if="dash.recentTodos.length > 0">
+      <div class="todo-item" ng-repeat="todo in dash.recentTodos | limitTo:5"
+           ng-class="{completed: todo.isCompleted}">
+        <div class="todo-checkbox" ng-class="{checked: todo.isCompleted}">
+          <i class="fas fa-check" ng-if="todo.isCompleted"></i>
+        </div>
+        <div class="todo-body">
+          <div class="todo-title">{{todo.title}}</div>
+          <div class="todo-meta">
+            <span class="priority-badge priority-{{todo.priority}}">{{todo.priority}}</span>
+            <span class="todo-category" ng-if="todo.category">{{todo.category}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="empty-state" ng-if="!dash.loading && dash.recentTodos.length === 0">
+      <div class="empty-icon"><i class="fas fa-circle-check"></i></div>
+      <div class="empty-title">All caught up!</div>
+      <div class="empty-desc">No pending tasks. Add some to stay productive.</div>
+      <button class="btn btn-primary" style="margin-top:16px" ng-click="app.navigate('todos')">
+        <i class="fas fa-plus"></i> Add Task
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="noteflowApp" ng-controller="AppController as app">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NoteFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="src/assets/styles/main.css" />
+</head>
+<body ng-class="{'dark-mode': app.darkMode}">
+
+  <!-- AUTH PAGE -->
+  <div class="auth-page" ng-if="!app.isLoggedIn">
+    <div class="auth-bg">
+      <div class="auth-blob blob1"></div>
+      <div class="auth-blob blob2"></div>
+      <div class="auth-blob blob3"></div>
+    </div>
+    <div class="auth-container">
+      <div class="auth-card" ng-include="'src/app/auth/auth.html'"></div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div class="app-shell" ng-if="app.isLoggedIn">
+    <!-- Sidebar -->
+    <nav class="sidebar" ng-class="{'sidebar-collapsed': app.sidebarCollapsed}">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+          <span class="logo-text" ng-if="!app.sidebarCollapsed">NoteFlow</span>
+        </div>
+        <button class="collapse-btn" ng-click="app.toggleSidebar()">
+          <i class="fas" ng-class="app.sidebarCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-nav">
+        <a class="nav-item" ng-class="{active: app.currentPage === 'dashboard'}" ng-click="app.navigate('dashboard')">
+          <i class="fas fa-grid-2"></i>
+          <span ng-if="!app.sidebarCollapsed">Dashboard</span>
+        </a>
+        <a class="nav-item" ng-class="{active: app.currentPage === 'notes'}" ng-click="app.navigate('notes')">
+          <i class="fas fa-sticky-note"></i>
+          <span ng-if="!app.sidebarCollapsed">Notes</span>
+        </a>
+        <a class="nav-item" ng-class="{active: app.currentPage === 'todos'}" ng-click="app.navigate('todos')">
+          <i class="fas fa-circle-check"></i>
+          <span ng-if="!app.sidebarCollapsed">To-Do</span>
+        </a>
+        <a class="nav-item" ng-class="{active: app.currentPage === 'archive'}" ng-click="app.navigate('archive')">
+          <i class="fas fa-box-archive"></i>
+          <span ng-if="!app.sidebarCollapsed">Archive</span>
+        </a>
+        <div class="nav-divider" ng-if="!app.sidebarCollapsed"><span>Account</span></div>
+        <a class="nav-item" ng-class="{active: app.currentPage === 'settings'}" ng-click="app.navigate('settings')">
+          <i class="fas fa-gear"></i>
+          <span ng-if="!app.sidebarCollapsed">Settings</span>
+        </a>
+        <a class="nav-item admin-link" ng-if="app.isAdmin" ng-class="{active: app.currentPage === 'admin'}" ng-click="app.navigate('admin')">
+          <i class="fas fa-shield-halved"></i>
+          <span ng-if="!app.sidebarCollapsed">Admin Panel</span>
+        </a>
+      </div>
+
+      <div class="sidebar-footer" ng-if="!app.sidebarCollapsed">
+        <div class="user-chip" ng-click="app.navigate('settings')">
+          <img ng-if="app.user.profilePhoto" ng-src="{{app.apiBase + app.user.profilePhoto}}" class="user-avatar-sm" />
+          <div ng-if="!app.user.profilePhoto" class="user-avatar-sm avatar-placeholder">{{app.user.name[0]}}</div>
+          <div class="user-chip-info">
+            <span class="user-chip-name">{{app.user.name}}</span>
+            <span class="user-chip-mobile">{{app.user.email}}</span>
+          </div>
+        </div>
+        <button class="logout-btn" ng-click="app.logout()" title="Logout">
+          <i class="fas fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" ng-click="app.toggleSidebar()">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="page-title-area">
+            <h1 class="page-title">{{app.pageTitle}}</h1>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="search-bar">
+            <i class="fas fa-magnifying-glass"></i>
+            <input type="text" placeholder="Search notes, todos..." ng-model="app.searchQuery" />
+          </div>
+          <button class="icon-btn" ng-click="app.toggleDarkMode()" title="Toggle theme">
+            <i class="fas" ng-class="app.darkMode ? 'fa-sun' : 'fa-moon'"></i>
+          </button>
+          <div class="topbar-avatar" ng-click="app.navigate('settings')">
+            <img ng-if="app.user.profilePhoto" ng-src="{{app.apiBase + app.user.profilePhoto}}" />
+            <div ng-if="!app.user.profilePhoto" class="avatar-placeholder">{{app.user.name[0]}}</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Views -->
+      <div class="page-view" ng-include="'src/app/dashboard/dashboard.html'" ng-if="app.currentPage === 'dashboard'"></div>
+      <div class="page-view" ng-include="'src/app/notes/notes.html'" ng-if="app.currentPage === 'notes'"></div>
+      <div class="page-view" ng-include="'src/app/todos/todos.html'" ng-if="app.currentPage === 'todos'"></div>
+      <div class="page-view" ng-include="'src/app/notes/archive.html'" ng-if="app.currentPage === 'archive'"></div>
+      <div class="page-view" ng-include="'src/app/settings/settings.html'" ng-if="app.currentPage === 'settings'"></div>
+      <div class="page-view" ng-include="'src/app/admin/admin.html'" ng-if="app.currentPage === 'admin' && app.isAdmin"></div>
+    </div>
+  </div>
+
+  <!-- Global Toast -->
+  <div class="toast-container" ng-if="app.toast.show">
+    <div class="toast" ng-class="'toast-' + app.toast.type">
+      <i class="fas" ng-class="{'fa-circle-check': app.toast.type==='success', 'fa-circle-xmark': app.toast.type==='error', 'fa-circle-info': app.toast.type==='info'}"></i>
+      <span>{{app.toast.message}}</span>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+  <script src="src/app/app.module.js"></script>
+  <script src="src/app/app.config.js"></script>
+  <script src="src/app/shared/api.service.js"></script>
+  <script src="src/app/auth/auth.controller.js"></script>
+  <script src="src/app/dashboard/dashboard.controller.js"></script>
+  <script src="src/app/notes/notes.controller.js"></script>
+  <script src="src/app/todos/todos.controller.js"></script>
+  <script src="src/app/settings/settings.controller.js"></script>
+  <script src="src/app/admin/admin.controller.js"></script>
+</body>
+</html>

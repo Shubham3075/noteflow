@@ -1,0 +1,13 @@
+{
+  "name": "noteflow-frontend",
+  "version": "1.0.0",
+  "description": "NoteFlow - Google Keep-style Notes & Todos App",
+  "scripts": {
+    "start": "http-server . -p 4200 --cors -o",
+    "dev": "live-server --port=4200"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  }
+}

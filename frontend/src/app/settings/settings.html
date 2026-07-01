@@ -1,0 +1,121 @@
+<div ng-controller="SettingsController as settings" class="settings-layout">
+
+  <!-- Profile Section -->
+  <div class="settings-section">
+    <div class="settings-section-header">
+      <i class="fas fa-user-circle"></i>
+      <h3>Profile</h3>
+    </div>
+    <div class="settings-body">
+      <div class="avatar-upload-area">
+        <div class="avatar-large">
+          <img ng-if="app.user.profilePhoto" ng-src="{{app.apiBase + app.user.profilePhoto}}" />
+          <div ng-if="!app.user.profilePhoto" class="avatar-placeholder" style="font-size:34px">
+            {{app.user.name && app.user.name[0]}}
+          </div>
+        </div>
+        <div>
+          <label class="avatar-upload-btn" for="photoUpload">
+            <i class="fas fa-camera"></i> Change Photo
+          </label>
+          <input type="file" id="photoUpload" style="display:none" accept="image/*"
+                 onchange="angular.element(this).scope().settings.uploadPhoto(this.files[0])" />
+          <p style="font-size:12px;color:var(--text-3);margin-top:8px">JPG, PNG up to 10MB</p>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">Display Name</label>
+        <input class="form-input" type="text" ng-model="settings.name" />
+      </div>
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="text" ng-model="app.user.email" disabled
+               style="opacity:0.6;cursor:not-allowed" />
+      </div>
+      <button class="save-btn" ng-click="settings.saveProfile()" ng-disabled="settings.saving">
+        <i class="fas fa-check"></i> {{settings.saving ? 'Saving...' : 'Save Changes'}}
+      </button>
+    </div>
+  </div>
+
+  <!-- Appearance Section -->
+  <div class="settings-section">
+    <div class="settings-section-header">
+      <i class="fas fa-palette"></i>
+      <h3>Appearance</h3>
+    </div>
+    <div class="settings-body">
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Dark Mode</div>
+          <div class="settings-row-desc">Switch between light and dark theme</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" ng-model="app.darkMode" ng-change="app.toggleDarkMode()" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Compact Sidebar</div>
+          <div class="settings-row-desc">Collapse sidebar to show only icons</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" ng-model="app.sidebarCollapsed" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Section -->
+  <div class="settings-section">
+    <div class="settings-section-header">
+      <i class="fas fa-shield-halved"></i>
+      <h3>Account Info</h3>
+    </div>
+    <div class="settings-body">
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Account Role</div>
+          <div class="settings-row-desc">Your permission level</div>
+        </div>
+        <span class="status-badge" ng-class="app.isAdmin ? 'status-active' : 'priority-badge priority-MEDIUM'">
+          {{app.isAdmin ? '🛡 Admin' : '👤 User'}}
+        </span>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Member Since</div>
+          <div class="settings-row-desc">{{app.user.createdAt | date:'MMMM d, yyyy'}}</div>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Total Notes</div>
+          <div class="settings-row-desc">Notes you have created</div>
+        </div>
+        <span style="font-weight:700;color:var(--primary)">{{app.user.notesCount || 0}}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="settings-section" style="border-color: rgba(239,68,68,0.3)">
+    <div class="settings-section-header" style="color:var(--danger)">
+      <i class="fas fa-triangle-exclamation"></i>
+      <h3>Danger Zone</h3>
+    </div>
+    <div class="settings-body">
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Sign Out</div>
+          <div class="settings-row-desc">Log out from your account</div>
+        </div>
+        <button class="btn btn-danger btn-sm" ng-click="app.logout()">
+          <i class="fas fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

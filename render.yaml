@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: noteflow-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free                      # Free forever on Render
+    healthCheckPath: /api/actuator/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false                 # Set manually — paste your Neon.tech JDBC URL
+      - key: JWT_SECRET
+        generateValue: true         # Render auto-generates a secure random value
+      - key: FRONTEND_URL
+        sync: false                 # Set to your Vercel/Netlify URL after deploy
+      - key: GMAIL_ADDRESS
+        sync: false                 # Your Gmail address for sending OTP emails
+      - key: GMAIL_APP_PASSWORD
+        sync: false                 # 16-char App Password from myaccount.google.com/apppasswords
+      - key: EMAIL_ENABLED
+        value: "true"                # Set to "false" to use dev mode (OTP shown on screen)
+      - key: UPLOAD_DIR
+        value: /app/uploads/
+      - key: PORT
+        value: 8080

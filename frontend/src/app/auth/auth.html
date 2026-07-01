@@ -1,0 +1,113 @@
+<div ng-controller="AuthController as auth">
+  <!-- Logo -->
+  <div class="auth-logo">
+    <div class="auth-logo-icon"><i class="fas fa-bolt"></i></div>
+    <h1>NoteFlow</h1>
+    <p>Your notes &amp; tasks, always with you</p>
+  </div>
+
+  <!-- ── Step 1: Email ──────────────────────────────── -->
+  <div ng-if="auth.step === 1">
+    <h2 class="auth-step-title">Welcome 👋</h2>
+    <p class="auth-step-sub">Enter your email to get started</p>
+
+    <label class="auth-label">Email Address</label>
+    <div class="auth-input-wrap">
+      <span class="prefix"><i class="fas fa-envelope"></i></span>
+      <input class="auth-input"
+             type="email"
+             id="email-input"
+             placeholder="you@example.com"
+             ng-model="auth.email"
+             ng-keyup="$event.keyCode === 13 && auth.email && auth.sendOtp()" />
+    </div>
+
+    <button class="auth-btn"
+            ng-click="auth.sendOtp()"
+            ng-disabled="auth.loading || !auth.email">
+      <span ng-if="!auth.loading">Get OTP &nbsp;<i class="fas fa-arrow-right"></i></span>
+      <span ng-if="auth.loading"><i class="fas fa-spinner fa-spin"></i> &nbsp;Sending...</span>
+    </button>
+  </div>
+
+  <!-- ── Step 2: OTP Entry ──────────────────────────── -->
+  <div ng-if="auth.step === 2">
+    <h2 class="auth-step-title">Enter OTP 🔐</h2>
+    <p class="auth-step-sub">Sent to {{auth.email}}</p>
+
+    <!-- Dev mode hint -->
+    <div ng-if="auth.devOtp" class="auth-otp-hint">
+      <i class="fas fa-info-circle"></i>
+      Dev mode — OTP: <strong>{{auth.devOtp}}</strong>
+    </div>
+
+    <!-- Email mode hint -->
+    <div ng-if="auth.emailEnabled && !auth.devOtp" class="auth-otp-hint">
+      <i class="fas fa-envelope-circle-check"></i>
+      OTP sent to your inbox — check spam/promotions too
+    </div>
+
+    <!-- Single OTP input -->
+    <div style="margin-bottom:20px">
+      <input id="otp-input"
+             class="auth-input no-prefix"
+             type="tel"
+             maxlength="6"
+             placeholder="Enter 6-digit OTP"
+             ng-model="auth.otp"
+             ng-change="auth.onOtpInput()"
+             ng-keyup="$event.keyCode === 13 && auth.otp.length === 6 && auth.verifyOtp()"
+             style="font-size:22px;letter-spacing:10px;text-align:center;font-weight:700;" />
+    </div>
+
+    <button class="auth-btn"
+            ng-click="auth.verifyOtp()"
+            ng-disabled="auth.loading || auth.otp.length < 6">
+      <span ng-if="!auth.loading"><i class="fas fa-check"></i> &nbsp;Verify OTP</span>
+      <span ng-if="auth.loading"><i class="fas fa-spinner fa-spin"></i> &nbsp;Verifying...</span>
+    </button>
+
+    <div style="display:flex;justify-content:space-between;margin-top:16px;align-items:center">
+      <button class="auth-back" ng-click="auth.goBack()">
+        <i class="fas fa-arrow-left"></i> Change email
+      </button>
+      <button style="background:none;border:none;font-size:13px;cursor:pointer"
+              ng-style="{'color': auth.resendTimer > 0 ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.6)'}"
+              ng-click="auth.resendOtp()"
+              ng-disabled="auth.resendTimer > 0">
+        <span ng-if="auth.resendTimer > 0">Resend in {{auth.resendTimer}}s</span>
+        <span ng-if="auth.resendTimer === 0">Resend OTP</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Step 3: Name (New Users Only) ─────────────── -->
+  <div ng-if="auth.step === 3">
+    <h2 class="auth-step-title">Almost there! 🎉</h2>
+    <p class="auth-step-sub">Just tell us your name to create your account</p>
+
+    <label class="auth-label">Your Name</label>
+    <div class="auth-input-wrap">
+      <span class="prefix"><i class="fas fa-user"></i></span>
+      <input class="auth-input"
+             type="text"
+             placeholder="Enter your full name"
+             ng-model="auth.name"
+             ng-keyup="$event.keyCode === 13 && auth.name.length >= 2 && auth.submitName()"
+             autofocus />
+    </div>
+
+    <button class="auth-btn"
+            ng-click="auth.submitName()"
+            ng-disabled="auth.loading || !auth.name || auth.name.length < 2">
+      <span ng-if="!auth.loading"><i class="fas fa-rocket"></i> &nbsp;Create Account</span>
+      <span ng-if="auth.loading"><i class="fas fa-spinner fa-spin"></i> &nbsp;Creating...</span>
+    </button>
+  </div>
+
+  <!-- Error message -->
+  <div ng-if="auth.error"
+       style="margin-top:14px;padding:12px 14px;background:rgba(239,68,68,0.15);border-radius:10px;color:#fca5a5;font-size:13px;display:flex;gap:8px;align-items:center;">
+    <i class="fas fa-circle-exclamation"></i> {{auth.error}}
+  </div>
+</div>

@@ -1,0 +1,171 @@
+<div ng-controller="TodosController as todos">
+
+  <!-- Add Task Form -->
+  <div class="todo-add-area">
+    <h3><i class="fas fa-plus-circle"></i> Add New Task</h3>
+
+    <div class="form-row" style="grid-template-columns:1fr">
+      <div class="form-group">
+        <label class="form-label">Task Title *</label>
+        <input class="form-input"
+               type="text"
+               placeholder="What needs to be done?"
+               ng-model="todos.newTodo.title"
+               ng-keyup="$event.keyCode === 13 && todos.newTodo.title && todos.addTodo()" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <input class="form-input" type="text"
+               placeholder="Optional details..."
+               ng-model="todos.newTodo.description" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <input class="form-input" type="text"
+               placeholder="Work, Personal, Study..."
+               ng-model="todos.newTodo.category" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select class="form-select" ng-model="todos.newTodo.priority">
+          <option value="LOW">🟢 Low</option>
+          <option value="MEDIUM">🔵 Medium</option>
+          <option value="HIGH">🟠 High</option>
+          <option value="URGENT">🔴 Urgent</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Due Date</label>
+        <input class="form-input" type="datetime-local"
+               ng-model="todos.newTodo.dueDate" />
+      </div>
+    </div>
+
+    <button class="btn btn-primary" ng-click="todos.addTodo()"
+            ng-disabled="!todos.newTodo.title || !todos.newTodo.title.trim()">
+      <i class="fas fa-plus"></i> Add Task
+    </button>
+  </div>
+
+  <!-- Filter chips -->
+  <div class="todo-filters">
+    <button class="filter-chip" ng-class="{active: todos.filter==='all'}" ng-click="todos.filter='all'">
+      All ({{todos.allTodos.length}})
+    </button>
+    <button class="filter-chip" ng-class="{active: todos.filter==='pending'}" ng-click="todos.filter='pending'">
+      Pending ({{todos.pendingCount()}})
+    </button>
+    <button class="filter-chip" ng-class="{active: todos.filter==='completed'}" ng-click="todos.filter='completed'">
+      Done ({{todos.completedCount()}})
+    </button>
+    <button class="filter-chip" ng-class="{active: todos.filter==='URGENT'}" ng-click="todos.filter='URGENT'">🔴 Urgent</button>
+    <button class="filter-chip" ng-class="{active: todos.filter==='HIGH'}" ng-click="todos.filter='HIGH'">🟠 High</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-dots" ng-if="todos.loading"><span></span><span></span><span></span></div>
+
+  <!-- Todo List -->
+  <div class="todo-list" ng-if="!todos.loading">
+    <div class="todo-item"
+         ng-repeat="todo in todos.filteredTodos()"
+         ng-class="{completed: todo.isCompleted}">
+
+      <!-- Checkbox -->
+      <div class="todo-checkbox"
+           ng-class="{checked: todo.isCompleted}"
+           ng-click="todos.toggleComplete(todo)"
+           style="cursor:pointer">
+        <i class="fas fa-check" ng-if="todo.isCompleted"></i>
+      </div>
+
+      <!-- Content -->
+      <div class="todo-body">
+        <div class="todo-title">{{todo.title}}</div>
+        <div class="todo-desc" ng-if="todo.description">{{todo.description}}</div>
+        <div class="todo-meta">
+          <span class="priority-badge priority-{{todo.priority}}">{{todo.priority}}</span>
+          <span class="todo-category" ng-if="todo.category">{{todo.category}}</span>
+          <span class="todo-due" ng-if="todo.dueDate">
+            <i class="fas fa-calendar-alt"></i>
+            {{todo.dueDate | date:'MMM d, y'}}
+          </span>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="todo-actions">
+        <button class="note-action-btn" ng-click="todos.openEdit(todo)" title="Edit">
+          <i class="fas fa-pen"></i>
+        </button>
+        <button class="note-action-btn danger" ng-click="todos.deleteTodo(todo)" title="Delete">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" ng-if="!todos.loading && todos.filteredTodos().length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-circle-check" ng-if="todos.filter==='completed'"></i>
+      <i class="fas fa-list-check" ng-if="todos.filter!=='completed'"></i>
+    </div>
+    <div class="empty-title" ng-if="todos.filter==='all'">No tasks yet</div>
+    <div class="empty-title" ng-if="todos.filter==='completed'">No completed tasks</div>
+    <div class="empty-title" ng-if="todos.filter==='pending'">All done! 🎉</div>
+    <div class="empty-title" ng-if="todos.filter==='URGENT' || todos.filter==='HIGH'">No {{todos.filter | lowercase}} priority tasks</div>
+    <div class="empty-desc" ng-if="todos.filter==='all'">Use the form above to add your first task.</div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-backdrop" ng-if="todos.editModal.show"
+       ng-click="todos.editModal.show = false">
+    <div class="note-modal" ng-click="$event.stopPropagation()">
+      <div class="note-modal-header">
+        <span style="font-weight:700;font-size:16px;color:var(--text)">Edit Task</span>
+        <button class="modal-close-btn" ng-click="todos.editModal.show = false">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="note-modal-body">
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Title *</label>
+          <input class="form-input" ng-model="todos.editModal.title" placeholder="Task title" />
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Description</label>
+          <input class="form-input" ng-model="todos.editModal.description" placeholder="Optional description" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select class="form-select" ng-model="todos.editModal.priority">
+              <option value="LOW">🟢 Low</option>
+              <option value="MEDIUM">🔵 Medium</option>
+              <option value="HIGH">🟠 High</option>
+              <option value="URGENT">🔴 Urgent</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <input class="form-input" ng-model="todos.editModal.category" placeholder="Category" />
+          </div>
+        </div>
+      </div>
+      <div class="note-modal-footer" style="justify-content:flex-end">
+        <button class="btn btn-ghost btn-sm" ng-click="todos.editModal.show = false">Cancel</button>
+        <button class="btn btn-primary btn-sm" ng-click="todos.saveEdit()">
+          <i class="fas fa-check"></i> Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

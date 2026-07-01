@@ -1,0 +1,150 @@
+<div ng-controller="NotesController as notes">
+
+  <!-- Toolbar -->
+  <div class="notes-toolbar">
+    <button class="add-note-trigger" ng-click="notes.openModal(null)">
+      <i class="fas fa-plus"></i> Take a note...
+    </button>
+    <button class="btn btn-primary" ng-click="notes.openModal(null)">
+      <i class="fas fa-plus"></i> New Note
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-dots" ng-if="notes.loading"><span></span><span></span><span></span></div>
+
+  <!-- Pinned Notes -->
+  <div ng-if="!notes.loading && notes.pinnedNotes().length > 0">
+    <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">
+      <i class="fas fa-thumbtack"></i>&nbsp; PINNED
+    </div>
+    <div class="notes-grid" style="margin-bottom:24px">
+      <div class="note-card pinned"
+           ng-repeat="note in notes.pinnedNotes()"
+           ng-style="{'background': note.color && note.color !== '#ffffff' && note.color !== 'white' ? note.color : ''}"
+           ng-click="notes.openModal(note)">
+        <i class="fas fa-thumbtack note-pin-badge"></i>
+        <div class="note-title">{{note.title}}</div>
+        <div class="note-content" ng-if="note.content">{{note.content}}</div>
+        <div class="note-date">{{note.updatedAt | date:'MMM d, y · h:mm a'}}</div>
+        <div class="note-actions">
+          <button class="note-action-btn" title="Unpin"
+                  ng-click="$event.stopPropagation(); notes.togglePin(note)">
+            <i class="fas fa-thumbtack"></i>
+          </button>
+          <button class="note-action-btn" title="Archive"
+                  ng-click="$event.stopPropagation(); notes.toggleArchive(note)">
+            <i class="fas fa-box-archive"></i>
+          </button>
+          <button class="note-action-btn danger" title="Delete"
+                  ng-click="$event.stopPropagation(); notes.deleteNote(note)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Other Notes -->
+  <div ng-if="!notes.loading && notes.otherNotes().length > 0">
+    <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px"
+         ng-if="notes.pinnedNotes().length > 0">
+      OTHERS
+    </div>
+    <div class="notes-grid">
+      <div class="note-card"
+           ng-repeat="note in notes.otherNotes()"
+           ng-style="{'background': note.color && note.color !== '#ffffff' && note.color !== 'white' ? note.color : ''}"
+           ng-click="notes.openModal(note)">
+        <div class="note-title">{{note.title}}</div>
+        <div class="note-content" ng-if="note.content">{{note.content}}</div>
+        <div class="note-date">{{note.updatedAt | date:'MMM d, y · h:mm a'}}</div>
+        <div class="note-actions">
+          <button class="note-action-btn" title="Pin"
+                  ng-click="$event.stopPropagation(); notes.togglePin(note)">
+            <i class="fas fa-thumbtack"></i>
+          </button>
+          <button class="note-action-btn" title="Archive"
+                  ng-click="$event.stopPropagation(); notes.toggleArchive(note)">
+            <i class="fas fa-box-archive"></i>
+          </button>
+          <button class="note-action-btn danger" title="Delete"
+                  ng-click="$event.stopPropagation(); notes.deleteNote(note)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" ng-if="!notes.loading && notes.allNotes.length === 0">
+    <div class="empty-icon"><i class="fas fa-sticky-note"></i></div>
+    <div class="empty-title">No notes yet</div>
+    <div class="empty-desc">Click "New Note" or the bar above to create your first note.</div>
+  </div>
+
+  <!-- ── Note Modal ──────────────────────────────────── -->
+  <div class="modal-backdrop" ng-if="notes.modal.show"
+       ng-click="notes.closeAndDiscard()">
+    <div class="note-modal"
+         ng-style="{'background': notes.modal.color && notes.modal.color !== '#ffffff' ? notes.modal.color : ''}"
+         ng-click="$event.stopPropagation()">
+
+      <div class="note-modal-header">
+        <input class="modal-title-input"
+               type="text"
+               placeholder="Title"
+               ng-model="notes.modal.title"
+               ng-keyup="$event.keyCode === 13 && $event.preventDefault()" />
+        <button class="modal-close-btn" ng-click="notes.closeAndDiscard()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="note-modal-body">
+        <textarea class="modal-content-input"
+                  placeholder="Take a note..."
+                  ng-model="notes.modal.content"
+                  rows="7"></textarea>
+      </div>
+
+      <div class="note-modal-footer">
+        <!-- Color picker -->
+        <div>
+          <div style="font-size:11px;color:var(--text-3);font-weight:600;margin-bottom:7px">Color</div>
+          <div class="color-palette">
+            <div class="color-dot"
+                 ng-repeat="c in notes.colors"
+                 ng-style="{'background': c, 'border': '2px solid ' + (notes.modal.color === c ? '#6366f1' : 'rgba(0,0,0,0.12)')}"
+                 ng-click="notes.modal.color = c"
+                 title="{{c}}">
+            </div>
+          </div>
+        </div>
+        <!-- Action buttons -->
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-ghost btn-sm"
+                  ng-if="notes.modal.id"
+                  ng-click="notes.togglePin(notes.modal)">
+            <i class="fas fa-thumbtack"></i>
+            {{notes.modal.isPinned ? 'Unpin' : 'Pin'}}
+          </button>
+          <button class="btn btn-ghost btn-sm"
+                  ng-if="notes.modal.id"
+                  ng-click="notes.toggleArchive(notes.modal)">
+            <i class="fas fa-box-archive"></i>
+          </button>
+          <button class="btn btn-ghost btn-sm"
+                  ng-if="notes.modal.id"
+                  ng-click="notes.deleteNote(notes.modal)">
+            <i class="fas fa-trash"></i>
+          </button>
+          <button class="btn btn-primary btn-sm" ng-click="notes.saveNote()">
+            <i class="fas fa-check"></i> Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
