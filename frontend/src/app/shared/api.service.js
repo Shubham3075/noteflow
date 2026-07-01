@@ -1,6 +1,6 @@
 angular.module('noteflowApp')
 .factory('ApiService', ['$http', function($http) {
-  var BASE = 'http://localhost:8080/api';
+  var BASE = 'https://noteflow-j15m.onrender.com/api';
   var token = null;
 
   function headers() {
